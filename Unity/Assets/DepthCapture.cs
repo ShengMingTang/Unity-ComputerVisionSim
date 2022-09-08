@@ -31,17 +31,35 @@ public class DepthCapture : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // [YuanChun begin]
+        StartCoroutine(DoItFrameByFrame());
+        // [YuanChun end]
+        // [YuanChun begin]
         // print(sourceCameras.Count);
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            // Time.timeScale = 0;
-            for(int i = 0; i < sourceCameras.Count; i++){
-                Capture(i, frameIdx);
-            }
-            frameIdx++;
-            Time.timeScale = 1;
-        }   
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     // Time.timeScale = 0;
+        //     for(int i = 0; i < sourceCameras.Count; i++){
+        //         Capture(i, frameIdx);
+        //     }
+        //     frameIdx++;
+        //     Time.timeScale = 1;
+        // }  
+        // DoItFrameByFrame();
+        // [YuanChun end] 
     }
+
+    // [YuanChun begin]
+    public IEnumerator DoItFrameByFrame(){
+        // Time.timeScale = 0;
+        yield return null;
+        for(int i = 0; i < sourceCameras.Count; i++){
+            Capture(i, frameIdx);
+        }
+        frameIdx++;
+        Time.timeScale = 1;
+    }
+    // [YuanChun end] 
     
     public void Capture(int cameraNum, int frameNum)
     {
@@ -75,7 +93,7 @@ public class DepthCapture : MonoBehaviour
 
         // depth capture
         // rt = new RenderTexture(Screen.width, Screen.height, 16);
-         rt = new RenderTexture(captureWidth, captureHeight, 16);
+        rt = new RenderTexture(captureWidth, captureHeight, 16);
         depthCam.targetTexture = rt;
         depthCam.Render();
 
@@ -90,41 +108,9 @@ public class DepthCapture : MonoBehaviour
 
         print("Export image and depth successfully");
 
+        // [YuanChun begin]
+        // move the camera after capture
+        sourceCameras[cameraNum].GetComponent<CameraMovement>().ReadAndMove();
+        // [YuanChun end]
     }
-
-    // public void Capture(int frameNum)
-    // {
-    //     sourceCamera.GetComponent<ImageSynthesis>().OnCameraChange();
-
-    //     // image capture
-    //     RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 16);
-    //     sourceCamera.targetTexture = rt;
-    //     sourceCamera.Render();
-
-    //     RenderTexture.active = rt;
-    //     Texture2D tex = new Texture2D(rt.width, rt.height);
-    //     tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-    //     RenderTexture.active = null;
-
-    //     byte[] bytes = tex.EncodeToPNG();
-    //     string path = Application.dataPath + "/../output/image_" + frameNum + ".png";
-    //     System.IO.File.WriteAllBytes(path, bytes);
-
-    //     // depth capture
-    //     rt = new RenderTexture(Screen.width, Screen.height, 16);
-    //     depthCam.targetTexture = rt;
-    //     depthCam.Render();
-
-    //     RenderTexture.active = rt;
-    //     tex = new Texture2D(rt.width, rt.height);
-    //     tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-    //     RenderTexture.active = null;
-
-    //     bytes = tex.EncodeToPNG();
-    //     path = Application.dataPath + "/../output/depth_" + frameNum + ".png";
-    //     System.IO.File.WriteAllBytes(path, bytes);
-
-    //     print("Export image and depth successfully");
-
-    // }
 }
