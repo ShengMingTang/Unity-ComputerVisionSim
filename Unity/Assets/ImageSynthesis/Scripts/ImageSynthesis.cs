@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections;
 using System.IO;
@@ -58,6 +59,9 @@ public class ImageSynthesis : MonoBehaviour
     // cached materials
     private Material opticalFlowMaterial;
 
+    // depth, segmentation RenderTexture
+    public GameObject DepthCaptureController;
+
     void Start()
     {
         // default fallbacks, if shaders are unspecified
@@ -71,6 +75,8 @@ public class ImageSynthesis : MonoBehaviour
         capturePasses[0].camera = GetComponent<Camera>();
         for (int q = 1; q < capturePasses.Length; q++)
             capturePasses[q].camera = CreateHiddenCamera(capturePasses[q].name);
+
+        DepthCaptureController = GameObject.Find("DepthCaptureController");
 
         OnCameraChange();
         OnSceneChange();
@@ -163,6 +169,8 @@ public class ImageSynthesis : MonoBehaviour
         SetupCameraWithReplacementShader(capturePasses[3].camera, uberReplacementShader, ReplacementMode.DepthCompressed, Color.white);
         SetupCameraWithReplacementShader(capturePasses[4].camera, uberReplacementShader, ReplacementMode.Normals);
         SetupCameraWithPostShader(capturePasses[5].camera, opticalFlowMaterial, DepthTextureMode.Depth | DepthTextureMode.MotionVectors);
+
+        DepthCaptureController.GetComponent<DepthCapture>().depthCam = capturePasses[3].camera;
     }
 
 
@@ -308,4 +316,3 @@ public class ImageSynthesis : MonoBehaviour
     }
 #endif // UNITY_EDITOR
 }
-

@@ -22,7 +22,7 @@ int _OutputMode;
 inline float Linear01FromEyeToLinear01FromNear(float depth01)
 {
     float near = _ProjectionParams.y;
-    float far = sqrt(pow((sqrt(2) * _ProjectionParams.z), 2) + pow(2/3 * _ProjectionParams.z, 2));
+    float far = _ProjectionParams.z;
     return (depth01 - near/far) * (1 + near/far);
 }
 
@@ -48,7 +48,7 @@ float4 Output(float depth01, float3 normal)
     else if (_OutputMode == 2) // DepthCompressed
     {
         float linearZFromNear = Linear01FromEyeToLinear01FromNear(depth01); 
-        float k = 1; // compression factor
+        float k = 0.25; // compression factor
         return pow(linearZFromNear, k);
     }
     else if (_OutputMode == 3) // DepthMultichannel
@@ -75,8 +75,6 @@ ENDCG
     Tags { "RenderType"="Opaque" }
     Pass {
 CGPROGRAM
-// Upgrade NOTE: excluded shader from DX11; has structs without semantics (struct v2f members near,far)
-#pragma exclude_renderers d3d11
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -91,14 +89,7 @@ v2f vert( appdata_base v ) {
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
     o.pos = UnityObjectToClipPos(v.vertex);
     o.nz.xyz = COMPUTE_VIEW_NORMAL;
-
-    float3 viewSpaceCoordinate = UnityObjectToViewPos(v.vertex).xyz;
-    float dist = distance(viewSpaceCoordinate, float3(0, 0, 0));
-
-    float x = sqrt(pow((sqrt(2) * _ProjectionParams.z), 2) + pow(2/3 * _ProjectionParams.z, 2));
-
-    o.nz.w = dist / x;
-
+    o.nz.w = COMPUTE_DEPTH_01;
     return o;
 }
 fixed4 frag(v2f i) : SV_Target {
