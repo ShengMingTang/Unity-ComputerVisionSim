@@ -13,7 +13,7 @@ public class CameraManager : MonoBehaviour
     // This script will simply instantiate the Prefab when the game starts.
     private void Start()
     {
-        int numOfCameras = 2;
+        int numOfCameras = 1;
         for(int i = 0; i < numOfCameras; i++){
             Transform camera = Instantiate(cameraPrefab, new Vector3(0, 0, 0), Quaternion.identity);
             camera.transform.parent = transform;
